@@ -23,9 +23,9 @@ def show_main(request):
         news_list = News.objects.filter(user=request.user)
 
     context = {
-        'npm': '240123456',
+        'npm': '2406403381',
         'name': request.user.username,
-        'class': 'PBP A',
+        'class': 'PBP B',
         'news_list': news_list,
         'last_login': request.COOKIES.get('last_login', 'Never')
     }
@@ -116,3 +116,21 @@ def show_json_by_id(request, news_id):
        return HttpResponse(json_data, content_type="application/json")
     except News.DoesNotExist:
        return HttpResponse(status=404)
+   
+def edit_news(request, id):
+    news = get_object_or_404(News, pk=id)
+    form = NewsForm(request.POST or None, instance=news)
+    if form.is_valid() and request.method == 'POST':
+        form.save()
+        return redirect('main:show_main')
+
+    context = {
+        'form': form
+    }
+
+    return render(request, "edit_news.html", context)
+
+def delete_news(request, id):
+    news = get_object_or_404(News, pk=id)
+    news.delete()
+    return HttpResponseRedirect(reverse('main:show_main'))
